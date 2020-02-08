@@ -1,4 +1,4 @@
-function CarDetectionFunction(directory, videoName, panel, recortes)
+function CarDetectionFunction(directory, videoName, panel, recortes, stopFunction)
 
     sssMPEG = fullfile(pwd,"Videos", "Video1");
     videoMPEG = VideoWriter(sssMPEG,'MPEG-4');
@@ -24,6 +24,10 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
     %% Estimate Optical Flow of each frame
     start = 600;
     for i=start:1:NFrames %despreciamos el 
+      stop = stopFunction();
+      if stop == 1
+          return;
+      end
       %while hasFrame(vidReader)
       frameRGB = read(vidReader,i);
       %frameRGBcopia = frameRGB;
