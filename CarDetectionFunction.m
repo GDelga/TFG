@@ -22,7 +22,15 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
 
     NFrames = vidReader.NumberOfFrames;
     %% Estimate Optical Flow of each frame
-    start = 600;
+    numFrontCar = 0;
+    numBackCar = 0;
+    numFrontTrack = 0;
+    numBackTrack = 0;
+    numFrontBus = 0;
+    numBackBus = 0;
+    numFrontMoto = 0;
+    numBackMoto = 0;
+    start = 50;
     for i=start:1:NFrames %despreciamos el 
       %while hasFrame(vidReader)
       frameRGB = read(vidReader,i);
@@ -34,6 +42,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
       hold(panel,'on')
       % Plot the flow vectors
       plot(flow,'DecimationFactor',[25 25],'ScaleFactor', 2, 'Parent',panel)
+      line([0,N],[600,610],'LineWidth',3,'Color','#7E2F8E', 'Parent', panel);
       drawnow
       hold(panel,'off')
 
@@ -88,14 +97,25 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
           % la carretera. Por la parte izquierda el flujo tendrá una
           % orientación diferente a la derecha. 
           Orientacion = RPropOrientacion(h).MeanIntensity;
-
+          
           %linea para contar los coches!!!!!!!!
-%           if (label ~= 'Asfalto') && (label ~= 'Lineas') && (label ~= 'Muro')... 
-%              && (MEt >= 0.5)... 
-%              && RPropOrientacion(h).Centroid(2) > 500 && RPropOrientacion(h).Centroid(2) < 550
-% %             numCoches +=1;
-%           end
-
+           if (label ~= 'Asfalto') && (label ~= 'Lineas') && (label ~= 'Muro')... 
+              && (MEt >= 0.5)... 
+              && RPropOrientacion(h).Centroid(2) > 600 && RPropOrientacion(h).Centroid(2) < 614
+             switch label
+            case 'Bus'
+              numFrontBus = numFrontBus + 1;
+            case 'CamionFurgo'
+              numFrontTrack = numFrontTrack + 1;
+            case 'CocheDelantera'
+              numFrontCar = numFrontCar + 1;
+            case 'CocheTrasera'
+              numBackCar = numBackCar + 1 ;
+            case 'Moto'
+              numFrontMoto = numFrontMoto + 1;
+             end
+           end
+           
           if (label ~= 'Asfalto') && (label ~= 'Lineas') && (label ~= 'Muro')... 
              && (MEt >= 0.5)... 
              && RPropOrientacion(h).Centroid(2) > 500 && RPropOrientacion(h).Centroid(2) < 950 
