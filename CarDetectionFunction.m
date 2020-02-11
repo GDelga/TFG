@@ -92,6 +92,12 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
         amp = 0;
         %Nos recorremos todas las etiquetas
         for h=1:1:Nlabels
+          stop = stopFunction();
+          if stop == 1
+             uialert(figure,'The video has been stopped','Success', 'Icon','success');
+             resetPanels();
+             return;
+          end
           % Si el area es la de un posible vehiculo.
           if RProp(h).Area > 500
             % Obtenemos la coordenada X superior izquierda.
