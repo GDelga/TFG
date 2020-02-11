@@ -1,9 +1,5 @@
 function CarDetectionFunction(directory, videoName, panel, recortes)
 
-    sssMPEG = fullfile(pwd,"Videos", "Video1");
-    videoMPEG = VideoWriter(sssMPEG,'MPEG-4');
-    open(videoMPEG)
-
     load netTransfer
     sz = netTransfer.Layers(1).InputSize;
 
@@ -33,9 +29,15 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
       imshow(frameRGB, 'parent', panel);
       hold(panel,'on')
       % Plot the flow vectors
-      plot(flow,'DecimationFactor',[25 25],'ScaleFactor', 2, 'Parent',panel)
-      drawnow
+      plot(flow,'DecimationFactor',[25 25],'ScaleFactor', 2, 'Parent',panel);
+      
+      
+      line(panel,[800,800],[550,555],'LineWidth',3,'Color','orange');
+            
+      
+     
       hold(panel,'off')
+      drawnow
 
       if i > 2
         MagnitudFlow    = mat2gray(flow.Magnitude);
@@ -77,16 +79,16 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
           R = imresize(Recorte, [sz(1) sz(2)], 'bilinear');       
           imshow(R, 'parent', recortes);drawnow
 
-          %% Clasifcación propiamente dicha
+          %% Clasifcaciï¿½n propiamente dicha
           [label, Error]  = classify(netTransfer,R);
           [MEt,MaxEt] = max(Error);
           %disp('Label ='); disp(label) 
           %disp('Error ='); disp(Error)
 
-          % Aquí debemos tomar una decisión para determinar si el coche va en
-          % buen sentido o mal. Teniendo en cuenta la posición de la cámara en
-          % la carretera. Por la parte izquierda el flujo tendrá una
-          % orientación diferente a la derecha. 
+          % Aquï¿½ debemos tomar una decisiï¿½n para determinar si el coche va en
+          % buen sentido o mal. Teniendo en cuenta la posiciï¿½n de la cï¿½mara en
+          % la carretera. Por la parte izquierda el flujo tendrï¿½ una
+          % orientaciï¿½n diferente a la derecha. 
           Orientacion = RPropOrientacion(h).MeanIntensity;
 
           %linea para contar los coches!!!!!!!!
