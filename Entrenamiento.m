@@ -41,7 +41,7 @@ capas, por el contrario, este será más lento en las capas antiguas.
 Capas añadidas:
 
     * fullyConnectedLayer: Una capa en la que cada neurona está conectada
-                           a cada neurona de la capa siguiente. (Capa 2D)
+                           a cada neurona de la capa anterior. (Capa 2D)
 
     * softmaxLayer: Es la capa que se ocupa de calcular las probabilidades
                     de pertenencia a las clases.
@@ -63,14 +63,12 @@ layers = [
 imageDataAugmenter permite definir un conjunto de opciones para el
 preprocesamiento de imágenes, entre ellas se encuentra el redimensionado,
 la rotación, la reflexión, etc.
-
-Valores:
-
-    * ('RandXReflection',true): Reflexión de izquierda-derecha, 50%.
-    * ('RandXTranslation',pixelRange): Rango para la translación horizontal.
-    * ('RandYTranslation',pixelRange): Rango para la translación vertical.
 %}
-imageAugmenter = imageDataAugmenter('RandXReflection', true, 'RandXTranslation', [-30 30], 'RandYTranslation', [-30 30]);
+imageAugmenter = imageDataAugmenter( ...
+    'RandXReflection', true, ... % Reflexión de izquierda-derecha, 50%.
+    'RandXTranslation', [-30 30], ... Rango para la translación horizontal.
+    'RandYTranslation', [-30 30] ... Rango para la translación vertical.
+);
 
 %{
 El objeto augmentedImageDatastore es parecido al imageDatastore con la 
@@ -90,7 +88,12 @@ datos de validación u otros datos que nunca ha visto.
 Este set de imágenes se usará para entrenar AlexNet y así esta pueda
 autoajustar los pesos/tensores de las neuronas.
 %}
-aumentedImageDataStoreForTraining = augmentedImageDatastore(inputSize(1:2),imageDataStoreForTraining,'DataAugmentation',imageAugmenter);
+aumentedImageDataStoreForTraining = augmentedImageDatastore( ...
+    inputSize(1:3), ... % Tamaño de las imágenes de salida (227,227,3).
+    imageDataStoreForTraining, ... % DataStore original.
+    'DataAugmentation', imageAugmenter, ... % Opciones de distorsión.
+    'ColorPreprocessing', 'gray2rgb' ... % Pasar de grises a rgb.
+);
 
 %{
 El set de imágenes de validacion permite verificar si la clasificacion es 
