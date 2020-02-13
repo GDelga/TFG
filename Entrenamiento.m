@@ -100,11 +100,15 @@ El set de imágenes de validacion permite verificar si la clasificacion es
 correcta, si falla en exceso entonces el entrenamiento no ha sido correcto 
 ya que se necesita aumentar el conjuto de datos de entrenamiento.
 %}
-aumentedImageDataStoreForValidation = augmentedImageDatastore(inputSize(1:2),imageDataStoreForValidation);
+aumentedImageDataStoreForValidation = augmentedImageDatastore( ...
+    inputSize(1:3), ... % Tamaño de las imágenes de salida (227,227,3).
+    imageDataStoreForValidation, ... % DataStore original.
+    'ColorPreprocessing', 'gray2rgb' ... % Pasar de grises a rgb.
+);
 
 % Especificamos las opciones de entrenamiento de AlexNet. 
 options = trainingOptions( ...
-    'sgdm', ... % El resolutor empleará el método del descenso del gradiente.
+    'sgdm', ... % Se emplea: Stochastic Gradient Descent with Momentum.
     'MiniBatchSize', 10, ... % Tamaño de los lotes de imágenes que circulan por la red.
     'MaxEpochs', 10, ... % Número de ciclos de entrenamiento, este se compone de un número de iteraciones, siendo una iteración cuando todos los batch han recorrido la red.
     'InitialLearnRate', 1e-4, ... % Factor de aprendizaje.
