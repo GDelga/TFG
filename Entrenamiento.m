@@ -38,16 +38,39 @@ y tendrán un factor de aprendizaje más alto.
 Esta configuración permitirá un aprendizaje más rápido en las nuevas
 capas, por el contrario, este será más lento en las capas antiguas.
 
-Capas añadidas:
+Capas añadidas (Capas de tipo 2D):
 
-    * fullyConnectedLayer: Una capa en la que cada neurona está conectada
-                           a cada neurona de la capa anterior. (Capa 2D)
+    * fullyConnectedLayer: 
 
-    * softmaxLayer: Es la capa que se ocupa de calcular las probabilidades
-                    de pertenencia a las clases.
+        Una capa en la cual cada neurona está conectada a cada neurona de 
+        la capa anterior.
 
-    * classificationLayer: Esta capa recibe la probabilidad de pertenencia
-                           cada clase del problema de clasificación.
+        Esta capa toma los resultados de los procesos de convolution 
+        (convolución) y pooling (agrupación) para su uso en la
+        determinación de la clase a la que pertenece una imágen.
+
+        La salida de convolution y pooling se aplanan/transforman (flatten)
+        en un vector de 1xN valores, siendo cado uno de esos valores una
+        probabilidad de cuan vinculada está cierta característica a la
+        pertenencia a una clase.
+
+        Ejemplo: Si tenemos una imagen de un coche, las características que
+        que representan elementos como: Ruedas, capó, retrovisores, etc ... 
+        Deben contener altas probabilidades para que la imagen pueda 
+        pertenecer a la clase coche.
+
+    * softmaxLayer: 
+        
+        Es la capa que se ocupa de calcular las probabilidades de 
+        pertenencia de una imagen a cada clase. Su salida es un vector
+        que contiene en cada posición un valor en el rango [0 - 1] que 
+        representa la probabilidad de pertenencia de la imagen a cada clase 
+        del problema de clasificación.
+
+    * classificationLayer: 
+
+        Esta capa recibe la probabilidad de pertenencia de una imagen a 
+        cada clase del problema de clasificación.
 
 %}
 layers = [
