@@ -217,9 +217,9 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
 % 
     end
     %Llamada a ThingSpeak para guardar contadores
-    channelIDParking = '992850';
+    channelIDParking = 986255;
     dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
-    writeAPIKeyParking = 'R7GC8N8FDTJE645C';
+    writeAPIKeyParking = 'OSC85NR2M22OOXQG';
     thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
     
     close(videoMPEG); %se cierra el video
