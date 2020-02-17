@@ -1,10 +1,4 @@
-function LearningFunction(data)
-
-% Borrar todas las variables del espacio de trabajo.
-clear;
-
-% Cierra todos los gráficos que se estén mostrando.
-close all;
+function LearningFunction(configData)
 
 % Almacén de imágenes, toma la estructura de las carpetas y subcarpetas.
 vehicleImageDataStore = imageDatastore('Vehiculos','IncludeSubfolders', true,'LabelSource','foldernames');
@@ -77,7 +71,11 @@ Capas añadidas (Capas de tipo 2D):
 %}
 layers = [
     transferedLayers
-    fullyConnectedLayer(numClasses,'WeightLearnRateFactor',20,'BiasLearnRateFactor',20)
+    fullyConnectedLayer( ...
+        numClasses, ...
+        'WeightLearnRateFactor', configData.WeightLearnRateFactor, ...
+        'BiasLearnRateFactor', configData.BiasLearnRateFactor ...
+    )
     softmaxLayer
     classificationLayer
 ];
@@ -133,19 +131,19 @@ aumentedImageDataStoreForValidation = augmentedImageDatastore( ...
 
 % Especificamos las opciones de entrenamiento de AlexNet. 
 options = trainingOptions( ...
-    'sgdm', ... % Se emplea: Stochastic Gradient Descent with Momentum.
-    'MiniBatchSize', 10, ... % Tamaño de los lotes de imágenes que circulan por la red.
-    'MaxEpochs', 10, ... % Número de ciclos de entrenamiento, este se compone de un número de iteraciones, siendo una iteración cuando todos los batch han recorrido la red.
-    'InitialLearnRate', 1e-4, ... % Factor de aprendizaje.
+    configData.SolverMethod, ... % Se emplea: Stochastic Gradient Descent with Momentum.
+    'MiniBatchSize', configData.MiniBatchSize, ... % Tamaño de los lotes de imágenes que circulan por la red.
+    'MaxEpochs', configData.MaxEpochs, ... % Número de ciclos de entrenamiento, este se compone de un número de iteraciones, siendo una iteración cuando todos los batch han recorrido la red.
+    'InitialLearnRate', configData.InitialLearnRate, ... % Factor de aprendizaje.
     'ValidationData', aumentedImageDataStoreForValidation, ... % Set de imágenes para realizar la validación. 
-    'ValidationFrequency', 3, ... % Indica cada cuantas iteraciones se realiza el proceso de validación.
-    'ValidationPatience', Inf, ... % Cuando ya lleva cierto numero de ciclos de etrenamiento para si no hay mejora, en este caso no para.
+    'ValidationFrequency', configData.ValidationFrequency, ... % Indica cada cuantas iteraciones se realiza el proceso de validación.
+    'ValidationPatience', configData.ValidationPatience, ... % Cuando ya lleva cierto numero de ciclos de etrenamiento para si no hay mejora, en este caso no para.
     'Verbose', false, ... % No se muestra el progreso del entrenamiento por la consola de comandos.
     'Plots','training-progress' ... % El proceso del entrenamiento se representa con una gráfica de puntos.
 );
 
 % Lanza el entrenamiento de AlexNet, requiere el uso de la GPU.
-netTransfer = trainNetwork(aumentedImageDataStoreForTraining,layers,options);
+netTransfer = trainNetwork(aumentedImageDataStoreForTraining, layers, options);
 
 % Guarda en el fichero netTransfer el contenido de la variable netTransfer.
 save netTransfer netTransfer
