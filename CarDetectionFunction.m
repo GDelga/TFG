@@ -42,6 +42,8 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
       hold(panel,'on')
       % Plot the flow vectors
       plot(flow,'DecimationFactor',[25 25],'ScaleFactor', 2, 'Parent',panel)
+      % Esta linea de codigo pinta una linea que usaremos para contar los
+      % vehiculos
       line([0,N],[600,610],'LineWidth',3,'Color','#7E2F8E', 'Parent', panel);
       drawnow
       hold(panel,'off')
@@ -115,7 +117,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
               numFrontMoto = numFrontMoto + 1;
              end
            end
-           
+           % Detecta los coches y los pinta con el cuadrado correspondiente
           if (label ~= 'Asfalto') && (label ~= 'Lineas') && (label ~= 'Muro')... 
              && (MEt >= 0.5)... 
              && RPropOrientacion(h).Centroid(2) > 500 && RPropOrientacion(h).Centroid(2) < 950 
@@ -168,6 +170,10 @@ function CarDetectionFunction(directory, videoName, panel, recortes)
 % 
     end
     %Llamada a ThingSpeak para guardar contadores
-
+    channelIDParking = '992850';
+    dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
+    writeAPIKeyParking = 'R7GC8N8FDTJE645C';
+    thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
+    
     close(videoMPEG); %se cierra el video
 end
