@@ -70,6 +70,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
       %plot(flow,'DecimationFactor',[25 25],'ScaleFactor', 2, 'Parent',panel);
       drawnow
       hold(panel,'off')
+      drawnow
 
       if currentFrameNumber > 2
         MagnitudFlow = mat2gray(opticalFlow.Magnitude);
