@@ -172,18 +172,18 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
                textPanel.Value{end+1} = char(join(string(Error)));
                switch label
                   case 'Bus'
-                    color = 'yellow'; texto = 'Bus';
+                    color = 'yellow'; texto = ' Front Bus';
                   case 'CamionFurgo'
-                    color = 'white'; texto = 'Camion-furgo';
+                    color = 'white'; texto = ' Front Truck';
                   case 'CocheDelantera'
-                    color = 'blue'; texto = 'Car Frontal';
+                    color = 'blue'; texto = ' Front Car';
                   case 'CocheTrasera'
-                    color = 'red'; texto = 'Car Trasera';
+                    color = 'red'; texto = ' Back Car';
                   case 'Moto'
-                    color = 'green'; texto = 'Moto';
+                    color = 'green'; texto = ' Front Moto';
                end
                %Pintamos el recuadro
-               hold(panel,'on'); text(XSupDcha,YSupDcha,texto, 'Parent', panel);
+               hold(panel,'on'); text(XSupDcha,YSupDcha,texto, 'FontSize',14, 'Color',color, 'FontWeight', 'bold', 'Parent', panel);
                line([XSupIzda,XSupDcha],[YSupIzda,YSupDcha],'LineWidth',3,'Color',color, 'Parent', panel);
                line([XSupIzda,XInfIzda],[YSupIzda,YInfIzda],'LineWidth',3,'Color',color, 'Parent', panel);
                line([XSupDcha,XInfDcha],[YSupDcha,YInfDcha],'LineWidth',3,'Color',color, 'Parent', panel);
@@ -194,36 +194,12 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
          end
         end
       end
-      %PROVISIONALMENTE COMENTADO, NO DESCOMENTAR
-      % Create a temporary figure with axes.
-% fig = figure;
-% fig.Visible = 'off';
-% figAxes = axes(fig);
-% % Copy all UIAxes children, take over axes limits and aspect ratio.            
-% allChildren = panel.XAxis.Parent.Children;
-% copyobj(allChildren, figAxes)
-% figAxes.XLim = panel.XLim;
-% figAxes.YLim = panel.YLim;
-% figAxes.ZLim = panel.ZLim;
-% figAxes.DataAspectRatio = panel.DataAspectRatio;
-% % Save as png and fig files.
-% saveas(fig, 'Figura1.bmp');
-% savefig(fig, 'Figura1.bmp');
-% % Delete the temporary figure.
-% delete(fig);
-%       frameFigure = imread('Figura1.bmp');
-%       if i > start+2
-%         writeVideo(videoMPEG,frameFigure);
-%       end 
-% 
     end
     %Llamada a ThingSpeak para guardar contadores
     channelIDParking = 986255;
     dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
     writeAPIKeyParking = 'OSC85NR2M22OOXQG';
     thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
-    
-    close(videoMPEG); %se cierra el video
     uialert(figure,'The process has ended','Success', 'Icon','success');
     resetPanels();
 end
