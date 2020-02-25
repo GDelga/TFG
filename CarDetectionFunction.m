@@ -50,8 +50,15 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
     
     % Obtenemos el numero total de frames que posee el video.
     NFrames = vidReader.NumberOfFrames;
-    %% Estimate Optical Flow of each frame
-    start = 600;
+    numFrontCar = 0;
+    numBackCar = 0;
+    numFrontTrack = 0;
+    numBackTrack = 0;
+    numFrontBus = 0;
+    numBackBus = 0;
+    numFrontMoto = 0;
+    numBackMoto = 0;
+    start = 50;
     % Carga todo el video, desde el primer al ultimo frame
     for  currentFrameNumber=start:1:NFrames
       stop = stopFunction();
@@ -68,6 +75,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
       hold(panel,'on')
       % Plot the flow vectors
       %plot(flow,'DecimationFactor',[25 25],'ScaleFactor', 2, 'Parent',panel);
+      %line([0,N],[600,610],'LineWidth',3,'Color','#7E2F8E', 'Parent', panel);
       drawnow
       hold(panel,'off')
       drawnow
@@ -136,6 +144,24 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
             %Error es el nombre que define la proporcion de similitud
             [label, Error]  = classify(netTransfer,Resized);
             [MEt,MaxEt] = max(Error);
+
+            %linea para contar los coches!!!!!!!!
+            if (label ~= 'Asfalto') && (label ~= 'Lineas') && (label ~= 'Muro')... 
+              && (MEt >= 0.5)... 
+              && RPropOrientacion(h).Centroid(2) > 600 && RPropOrientacion(h).Centroid(2) < 614
+	            switch label
+		            case 'Bus'
+		              numFrontBus = numFrontBus + 1;
+		            case 'CamionFurgo'
+		              numFrontTrack = numFrontTrack + 1;
+		            case 'CocheDelantera'
+		              numFrontCar = numFrontCar + 1;
+		            case 'CocheTrasera'
+		              numBackCar = numBackCar + 1 ;
+		            case 'Moto'
+		              numFrontMoto = numFrontMoto + 1;
+	            end
+            end
           
             %Clasificamos el label
             if (label ~= 'Asfalto') && (label ~= 'Lineas') && (label ~= 'Muro')... 
@@ -146,18 +172,18 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
                textPanel.Value{end+1} = char(join(string(Error)));
                switch label
                   case 'Bus'
-                    color = 'yellow'; texto = 'Bus';
+                    color = 'yellow'; texto = ' Front Bus';
                   case 'CamionFurgo'
-                    color = 'white'; texto = 'Camion-furgo';
+                    color = 'white'; texto = ' Front Truck';
                   case 'CocheDelantera'
-                    color = 'blue'; texto = 'Car Frontal';
+                    color = 'blue'; texto = ' Front Car';
                   case 'CocheTrasera'
-                    color = 'red'; texto = 'Car Trasera';
+                    color = 'red'; texto = ' Back Car';
                   case 'Moto'
-                    color = 'green'; texto = 'Moto';
+                    color = 'green'; texto = ' Front Moto';
                end
                %Pintamos el recuadro
-               hold(panel,'on'); text(XSupDcha,YSupDcha,texto, 'Parent', panel);
+               hold(panel,'on'); text(XSupDcha,YSupDcha,texto, 'FontSize',14, 'Color',color, 'FontWeight', 'bold', 'Parent', panel);
                line([XSupIzda,XSupDcha],[YSupIzda,YSupDcha],'LineWidth',3,'Color',color, 'Parent', panel);
                line([XSupIzda,XInfIzda],[YSupIzda,YInfIzda],'LineWidth',3,'Color',color, 'Parent', panel);
                line([XSupDcha,XInfDcha],[YSupDcha,YInfDcha],'LineWidth',3,'Color',color, 'Parent', panel);
@@ -168,30 +194,12 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
          end
         end
       end
-      %PROVISIONALMENTE COMENTADO, NO DESCOMENTAR
-      % Create a temporary figure with axes.
-% fig = figure;
-% fig.Visible = 'off';
-% figAxes = axes(fig);
-% % Copy all UIAxes children, take over axes limits and aspect ratio.            
-% allChildren = panel.XAxis.Parent.Children;
-% copyobj(allChildren, figAxes)
-% figAxes.XLim = panel.XLim;
-% figAxes.YLim = panel.YLim;
-% figAxes.ZLim = panel.ZLim;
-% figAxes.DataAspectRatio = panel.DataAspectRatio;
-% % Save as png and fig files.
-% saveas(fig, 'Figura1.bmp');
-% savefig(fig, 'Figura1.bmp');
-% % Delete the temporary figure.
-% delete(fig);
-%       frameFigure = imread('Figura1.bmp');
-%       if i > start+2
-%         writeVideo(videoMPEG,frameFigure);
-%       end 
-% 
     end
     %Llamada a ThingSpeak para guardar contadores
+    channelIDParking = 986255;
+    dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
+    writeAPIKeyParking = 'OSC85NR2M22OOXQG';
+    thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
     uialert(figure,'The process has ended','Success', 'Icon','success');
     resetPanels();
 end
