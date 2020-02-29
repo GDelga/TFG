@@ -1,6 +1,4 @@
-data = thingSpeakRead(1005862, 'Fields', [1,2], 'NumPoints', 1, 'Readkey', 'Z0G6S3M8BP1GZQXJ', 'OutputFormat', 'table');
-horizon = data.Horizon;
-day = char(data.Day);
+{horizon} = thingSpeakRead(1005862, 'Fields', {1,2}, 'NumPoints', 1, 'Readkey', 'Z0G6S3M8BP1GZQXJ');
 t1 = datetime(2018,09,01);
 switch day
     case 'Monday'
