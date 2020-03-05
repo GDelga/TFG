@@ -57,8 +57,7 @@ Esta capa recibe la probabilidad de pertenencia de una imagen a cada clase
 del problema de clasificación, tomando como la clase a la que pertenece 
 dicha imagen como aquella en la que ha obtenido una mayor probabilidad.
 
-MATLAB detectará automáticamente la clase del problema de clasificación a
-la que pertene cada imagen.
+MATLAB detectará automáticamente las clases del problema de clasificación.
 %}
 networkLayers(25) = classificationLayer;
 
@@ -146,8 +145,6 @@ Algunas ayudas que proporciona esta herramienta:
     + Averiguar si la capa de entrada tiene el tamaño correcto.
 %}
 analyzeNetwork(netTransfer);
-
-h = findobj('Name','analyzeNetwork');
 
 %% Matriz de confusión.
 
