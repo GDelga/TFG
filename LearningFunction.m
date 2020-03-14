@@ -3,10 +3,10 @@ function LearningFunction(configData)
 %% Carga y división de los set de imágenes.
 
 % Almacén de imágenes, toma la estructura de las carpetas y subcarpetas.
-vehicleImageDataStore = imageDatastore('Vehiculos','IncludeSubfolders', true,'LabelSource','foldernames');
+vehicleImageDataStore = imageDatastore('ImageCategories','IncludeSubfolders', true,'LabelSource','foldernames');
 
-% Divide el imageDatastore en dos imageDatastore con un reparto aleatorio de imágenes (90%,10%).
-[imageDataStoreForTraining , imageDataStoreForValidation] = splitEachLabel(vehicleImageDataStore,0.9,'randomized');
+% Divide el imageDatastore en dos imageDatastore con un reparto aleatorio de imágenes (80%,20%).
+[imageDataStoreForTraining , imageDataStoreForValidation] = splitEachLabel(vehicleImageDataStore,0.8,'randomized');
 
 %% Carga y extracción de características AlexNet.
 
@@ -77,9 +77,8 @@ preprocesamiento de imágenes.
 imageAugmenter = imageDataAugmenter( ...
     'RandXScale', [0.5 1], ... % Factor de escalado horizontal.
     'RandYScale', [0.5 1], ... % Factor de escalado vertical.
-    'RandXReflection', true, ... % Reflexión de arriba a abajo, 50%.
-    'RandYReflection', true, ... % Reflexión de izquierda a derecha, 50%.
-    'RandRotation', [-360 360], ... % Rango de la rotación en grados.
+    'RandXReflection', true, ... % Reflexión de izquierda a derecha, 50%.
+    'RandRotation', [-40 40], ... % Rango de la rotación en grados.
     'RandXTranslation', [-30 30], ... % Rango de la translación horizontal.
     'RandYTranslation', [-30 30] ... % Rango de la translación vertical.
 );
@@ -125,7 +124,7 @@ options = trainingOptions( ...
 );
 
 % Lanza el entrenamiento de AlexNet, requiere el uso de la GPU, en el peor caso se usará la CPU.
-netTransfer = trainNetwork(aumentedImageDataStoreForTraining, networkLayers, options);
+alexNet = trainNetwork(aumentedImageDataStoreForTraining, networkLayers, options);
 
 %% Análisis de la red neuronal.
 
@@ -144,12 +143,12 @@ Algunas ayudas que proporciona esta herramienta:
     + Comprobar que todas las capas estén bien conectadas.
     + Averiguar si la capa de entrada tiene el tamaño correcto.
 %}
-analyzeNetwork(netTransfer);
+analyzeNetwork(alexNet);
 
 %% Matriz de confusión.
 
 % Clase que ha asignado AlexNet a cada imagen del set de vehículos.
-predictedLabels = classify(netTransfer, vehicleImageDataStore);
+predictedLabels = classify(alexNet, vehicleImageDataStore);
     
 % Precisión en tanto por ciento de las clasificaciones realizadas.
 accuracy = nnz(vehicleImageDataStore.Labels == predictedLabels) / numel(vehicleImageDataStore.Labels);
@@ -157,7 +156,7 @@ accuracy = accuracy * 100;
 accuracy = round(accuracy, 2);
 accuracy = num2str(accuracy);
 accuracy = strcat(" ", accuracy, " ");
-    
+
 % Ventana que va a mostrar la matriz de confusión.
 figure( ...
     'NumberTitle', 'off', ... % Desactiva que se vea el número de ventana.
@@ -190,6 +189,6 @@ set(gcf, 'Toolbar', 'none', 'Menu', 'none');
 
 %% Guardamos la nueva AlexNet reentrenada en un fichero.
 % Guarda en el fichero netTransfer el contenido de la variable netTransfer.
-save netTransfer netTransfer
+save alexNet alexNet
 
 end
