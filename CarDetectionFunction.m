@@ -77,9 +77,6 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
       % Cálculo del flujo optico: Magnitud, dirección y sentido vectorial.
       opticalFlow = estimateFlow(opticalFlowMethod,rgb2gray(frameRGB));
       
-      % Orientaciones del flujo óptico: Ángulos en grados de los vectores.
-      orientationFlow = opticalFlow.Orientation;
-      
       %{
       Matriz donde valor es el módulo del vector a partir de ese punto, es 
       decir, la cantidad de movimiento que se ha producido en ese punto.
@@ -107,7 +104,6 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
       
       % Calcula las propiedades: Centroide, coordenadas y área de las regiones.
       RegionProperties = regionprops(binaryFlow);
-      RegionPropertiesOrientation = regionprops(binaryFlow,orientationFlow);
       
       %% Conteo del tráfico y visualización de la información
       
@@ -162,7 +158,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
             
             % Contabilización de vehículos.
             if (className ~= 'Asphalt') && (className ~= 'Lines') && (className ~= 'Wall') && (maxScore >= 0.875)... 
-            && RegionPropertiesOrientation(region).Centroid(2) > 600 && RegionPropertiesOrientation(region).Centroid(2) < 614
+            && RegionProperties(region).Centroid(2) > 600 && RegionProperties(region).Centroid(2) < 614
 	            
                switch className
 		            case 'Bus'
@@ -181,7 +177,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
           
             % Clasificamos la imagen si esta es la de un vehículo.
             if (className ~= 'Asphalt') && (className ~= 'Lines') && (className ~= 'Wall') && (maxScore >= 0.875) ... 
-            && RegionPropertiesOrientation(region).Centroid(2) > 450 && RegionPropertiesOrientation(region).Centroid(2) < 950 
+            && RegionProperties(region).Centroid(2) > 450 && RegionProperties(region).Centroid(2) < 950 
             
                % Mostramos información en el panel de texto.
                textPanel.Value{end+1} = 'Asphalt --- Bus --- Car ahead --- Car from behind --- Lines --- Motorcycle --- Truck or Van --- Wall';
