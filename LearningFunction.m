@@ -91,7 +91,7 @@ aumentedImageDataStoreForTraining = augmentedImageDatastore( ...
     inputSize(1:3), ... % Tamaño de las imágenes de salida (227,227,3).
     imageDataStoreForTraining, ... % DataStore original.
     'DataAugmentation', imageAugmenter, ... % Opciones de distorsión.
-    'ColorPreprocessing', 'gray2rgb' ... % Pasar de grises a rgb.
+    'ColorPreprocessing', 'gray2rgb' ... % Pasar de color a escala de grises.
 );
 
 %{
@@ -103,7 +103,7 @@ aumentedImageDataStoreForValidation = augmentedImageDatastore( ...
     inputSize(1:3), ... % Tamaño de las imágenes de salida (227,227,3).
     imageDataStoreForValidation, ... % DataStore original.
     'DataAugmentation', imageAugmenter, ... % Opciones de distorsión.
-    'ColorPreprocessing', 'gray2rgb' ... % Pasar de grises a rgb.
+    'ColorPreprocessing', 'gray2rgb' ... % Pasar de color a escala de grises.
 );
 
 %% Entrenamiento de la red neuronal.
@@ -117,8 +117,11 @@ options = trainingOptions( ...
     'InitialLearnRate', configData.InitialLearnRate, ... % Factor de aprendizaje.
     'ValidationData', aumentedImageDataStoreForValidation, ... % Set de imágenes para realizar la validación.
     'ValidationFrequency', configData.ValidationFrequency, ... % Indica cada cuantas iteraciones se realiza el proceso de validación.
-    'ValidationPatience', configData.ValidationPatience, ... % Cuando ya lleva cierto numero de ciclos de etrenamiento para si no hay mejora, en este caso no para.
+    'ValidationPatience', configData.ValidationPatience, ... % Cuando ya lleva cierto numero de ciclos de etrenamiento para si no hay mejora el entrenamiento se detiene.
     'Shuffle', 'every-epoch', ... % Baraja las imagenes de entrenamiento al comenzar cada Epoch y las de validación antes de comenzar cada test.
+    'LearnRateSchedule', 'piecewise', ... % Activa el planificador del de aprendizaje.
+    'LearnRateDropFactor', configData.LearnRateDropFactor, ... % Número a multiplicar por el factor de aprendizaje para modificarlo en el tiempo.
+    'LearnRateDropPeriod', configData.LearnRateDropPeriod, ... % Número de ciclos de entrenamiento que han de pasar hasta volver modificar el factor de aprendizaje.
     'Verbose', false, ... % No se muestra el progreso del entrenamiento por la consola de comandos.
     'Plots', 'training-progress' ... % El proceso del entrenamiento se representa con una gráfica de puntos.
 );
@@ -175,7 +178,7 @@ confusionchart( ...
     'DiagonalColor', 'blue', ... % Colores de los aciertos.
     'OffDiagonalColor', 'red', ... % Colores de los fallos.
     'FontColor', 'black', ... % Color de la fuente.
-    'FontSize', 10, ... % Tamaño de la fuente.
+    'FontSize', 8, ... % Tamaño de la fuente.
     'RowSummary', 'row-normalized', ...% Porcentaje de acierto y error al asignar la clase a la que pertenece la imagen.
     'ColumnSummary', 'column-normalized' ... % Porcentaje de acierto y error al predecir una clase para una imagen.
 );

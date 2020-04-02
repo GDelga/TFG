@@ -1,6 +1,6 @@
 function CarDetectionFunction(directory, videoName, panel, recortes, figure, textPanel, stopFunction, resetPanels)
 
-    %% Carga de alexNet e imágenes de entrada
+    %% Carga de alexNet e inicialización del lector de vídeo
 
     try
         % Carga alexNet de su fichero en una variable del workspace. 
@@ -23,9 +23,9 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
 
     %{
     Un objeto de flujo óptico permite estimar la direccion, el sentido y la 
-    orientación de los objetos en movimiento mediante el uso del método 
-    Farneback. Este trabaja con imagenes con una capa (imagenes en escala 
-    de grises). Acto seguido reseteamos su estado.
+    orientación de los objetos en movimiento, en este caso, mediante el uso
+    del método de Farneback. Este trabaja con imagenes con una capa (imagenes
+    en escala de grises). Acto seguido reseteamos su estado.
     %}
     opticalFlowMethod = opticalFlowFarneback;  
     reset(opticalFlowMethod);
@@ -119,7 +119,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
           end
           
           % Si la región es la de un posible vehiculo.
-          if RegionProperties(region).Area > 500
+          if RegionProperties(region).Area >= 200
             
             % Obtenemos la coordenada X superior izquierda.
             XSupIzda =  round(RegionProperties(region).BoundingBox(1));
@@ -157,50 +157,66 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
             maxScore = max(scores);
             
             % Contabilización de vehículos.
-            if (className ~= 'Asphalt') && (className ~= 'Lines') && (className ~= 'Wall') && (maxScore >= 0.875)... 
+            if (className ~= 'Asphalt') && (className ~= 'Wall') && (maxScore >= 0.60)... 
             && RegionProperties(region).Centroid(2) > 600 && RegionProperties(region).Centroid(2) < 614
 	            
                switch className
-		            case 'Bus'
+		            case 'BusAhead'
 		              numFrontBus = numFrontBus + 1;
-		            case 'TruckVan'
+                    case 'BusBehind'
+                      numBackBus = numBackBus + 1;
+		            case 'TruckVanAhead'
 		              numFrontTrack = numFrontTrack + 1;
+                    case 'TruckVanBehind'
+                      numBackTrack = numBackTrack + 1;
 		            case 'CarAhead'
 		              numFrontCar = numFrontCar + 1;
 		            case 'CarBehind'
 		              numBackCar = numBackCar + 1 ;
-		            case 'Motorcycle'
+		            case 'MotorcycleAhead'
 		              numFrontMoto = numFrontMoto + 1;
+                    case 'MotorcycleBehind'
+                      numBackMoto = numBackMoto + 1;
                end
                
             end
           
             % Clasificamos la imagen si esta es la de un vehículo.
-            if (className ~= 'Asphalt') && (className ~= 'Lines') && (className ~= 'Wall') && (maxScore >= 0.875) ... 
+            if (className ~= 'Asphalt') && (className ~= 'Wall') && (maxScore >= 0.60) ... 
             && RegionProperties(region).Centroid(2) > 450 && RegionProperties(region).Centroid(2) < 950 
             
                % Mostramos información en el panel de texto.
-               textPanel.Value{end+1} = 'Asphalt --- Bus --- Car ahead --- Car from behind --- Lines --- Motorcycle --- Truck or Van --- Wall';
+               textPanel.Value{end+1} = 'Asphalt - BusAhead - BusBehind - CarAhead - CarBehind - MotorcycleAhead - MotorcycleBehind - TruckVanAhead - TruckVanBehind - Wall'
                textPanel.Value{end+1} = char(join(string(scores)));
+               textPanel.Value{end+1} = strcat('Winner category: ', char(className));
                textPanel.Value{end+1} = '';
                
                % Color y nombre asociado a la clase de cada vehículo.
                switch className
-                  case 'Bus'
-                    color = 'yellow'; 
-                    category = ' Bus';
-                  case 'TruckVan'
-                    color = 'white'; 
-                    category = ' Truck or Van';
-                  case 'CarAhead'
-                    color = 'blue';
-                    category = ' Car ahead';
-                  case 'CarBehind'
-                    color = 'red';
-                    category = ' Car from behind';
-                  case 'Motorcycle'
-                    color = 'green';
-                    category = ' Motorcycle';
+                    case 'BusAhead'
+                        color = 'yellow'; 
+                        category = ' Bus Ahead';
+                    case 'BusBehind'
+                        color = 'yellow'; 
+                        category = ' Bus Behind';
+		            case 'TruckVanAhead'
+                        color = 'white'; 
+                        category = ' TruckVan Ahead';
+                    case 'TruckVanBehind'
+                        color = 'white'; 
+                        category = ' TruckVan Behind';
+		            case 'CarAhead'
+                        color = 'blue';
+                        category = ' Car Ahead';
+		            case 'CarBehind'
+                        color = 'blue';
+                        category = ' Car Behind';
+		            case 'MotorcycleAhead'
+                        color = 'green';
+                        category = ' Motorcycle Ahead';
+                    case 'MotorcycleBehind'
+                        color = 'green';
+                        category = ' Motorcycle Behind';
                end
                
                % Pintamos el recuadro que envuelve el vehículo.
@@ -224,10 +240,10 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
     %% Servidor ThingSpeak
     
     % Subimos a ThingSpeak la información de los contadores.
-    channelIDParking = 986255;
-    writeAPIKeyParking = 'OSC85NR2M22OOXQG';
-    dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
-    thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
+    % channelIDParking = 986255;
+    % writeAPIKeyParking = 'OSC85NR2M22OOXQG';
+    % dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
+    % thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
     
     %% Notificación y reseteo
     
