@@ -186,7 +186,7 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
             && RegionProperties(region).Centroid(2) > 450 && RegionProperties(region).Centroid(2) < 950 
             
                % Mostramos información en el panel de texto.
-               textPanel.Value{end+1} = 'Asphalt - BusAhead - BusBehind - CarAhead - CarBehind - MotorcycleAhead - MotorcycleBehind - TruckVanAhead - TruckVanBehind - Wall'
+               textPanel.Value{end+1} = 'Asphalt - BusAhead - BusBehind - CarAhead - CarBehind - MotorcycleAhead - MotorcycleBehind - TruckVanAhead - TruckVanBehind - Wall';
                textPanel.Value{end+1} = char(join(string(scores)));
                textPanel.Value{end+1} = strcat('Winner category: ', char(className));
                textPanel.Value{end+1} = '';
@@ -240,10 +240,10 @@ function CarDetectionFunction(directory, videoName, panel, recortes, figure, tex
     %% Servidor ThingSpeak
     
     % Subimos a ThingSpeak la información de los contadores.
-    % channelIDParking = 986255;
-    % writeAPIKeyParking = 'OSC85NR2M22OOXQG';
-    % dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
-    % thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
+    channelIDParking = 986255;
+    writeAPIKeyParking = 'OSC85NR2M22OOXQG';
+    dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
+    thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
     
     %% Notificación y reseteo
     
