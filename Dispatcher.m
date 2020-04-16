@@ -1,9 +1,9 @@
-classdef ASFactory
+classdef Dispatcher
     methods (Static)
         function singleton = getInstance
              persistent local
              if isempty(local)
-                local = CommandFactoryImp();
+                local = DispatcherImp();
              end
              singleton = local;
         end

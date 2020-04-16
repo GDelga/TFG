@@ -1,9 +1,9 @@
-classdef ASFactory
+classdef Controler
     methods (Static)
         function singleton = getInstance
              persistent local
              if isempty(local)
-                local = CommandFactoryImp();
+                local = ControlerImp();
              end
              singleton = local;
         end

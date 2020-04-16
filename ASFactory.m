@@ -3,7 +3,7 @@ classdef ASFactory
         function singleton = getInstance
              persistent local
              if isempty(local)
-                local = CommandFactoryImp();
+                local = ASFactoryImp();
              end
              singleton = local;
         end

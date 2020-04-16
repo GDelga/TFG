@@ -1,4 +1,4 @@
-classdef ASFactory
+classdef CommandFactory
     methods (Static)
         function singleton = getInstance
              persistent local
