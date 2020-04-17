@@ -3,10 +3,10 @@ function LearningFunction(configData)
 %% Carga y división de los set de imágenes.
 
 % Almacén de imágenes, toma la estructura de las carpetas y subcarpetas.
-vehicleImageDataStore = imageDatastore('Vehiculos','IncludeSubfolders', true,'LabelSource','foldernames');
+vehicleImageDataStore = imageDatastore('ImageCategories','IncludeSubfolders', true,'LabelSource','foldernames');
 
-% Divide el imageDatastore en dos imageDatastore con un reparto aleatorio de imágenes (90%,10%).
-[imageDataStoreForTraining , imageDataStoreForValidation] = splitEachLabel(vehicleImageDataStore,0.9,'randomized');
+% Divide el imageDatastore en dos imageDatastore con un reparto aleatorio de imágenes (80%,20%).
+[imageDataStoreForTraining , imageDataStoreForValidation] = splitEachLabel(vehicleImageDataStore,0.8,'randomized');
 
 %% Carga y extracción de características AlexNet.
 
@@ -77,9 +77,8 @@ preprocesamiento de imágenes.
 imageAugmenter = imageDataAugmenter( ...
     'RandXScale', [0.5 1], ... % Factor de escalado horizontal.
     'RandYScale', [0.5 1], ... % Factor de escalado vertical.
-    'RandXReflection', true, ... % Reflexión de arriba a abajo, 50%.
-    'RandYReflection', true, ... % Reflexión de izquierda a derecha, 50%.
-    'RandRotation', [-360 360], ... % Rango de la rotación en grados.
+    'RandXReflection', true, ... % Reflexión de izquierda a derecha, 50%.
+    'RandRotation', [-40 40], ... % Rango de la rotación en grados.
     'RandXTranslation', [-30 30], ... % Rango de la translación horizontal.
     'RandYTranslation', [-30 30] ... % Rango de la translación vertical.
 );
@@ -92,7 +91,7 @@ aumentedImageDataStoreForTraining = augmentedImageDatastore( ...
     inputSize(1:3), ... % Tamaño de las imágenes de salida (227,227,3).
     imageDataStoreForTraining, ... % DataStore original.
     'DataAugmentation', imageAugmenter, ... % Opciones de distorsión.
-    'ColorPreprocessing', 'gray2rgb' ... % Pasar de grises a rgb.
+    'ColorPreprocessing', 'gray2rgb' ... % Pasar de color a escala de grises.
 );
 
 %{
@@ -104,7 +103,7 @@ aumentedImageDataStoreForValidation = augmentedImageDatastore( ...
     inputSize(1:3), ... % Tamaño de las imágenes de salida (227,227,3).
     imageDataStoreForValidation, ... % DataStore original.
     'DataAugmentation', imageAugmenter, ... % Opciones de distorsión.
-    'ColorPreprocessing', 'gray2rgb' ... % Pasar de grises a rgb.
+    'ColorPreprocessing', 'gray2rgb' ... % Pasar de color a escala de grises.
 );
 
 %% Entrenamiento de la red neuronal.
@@ -118,14 +117,17 @@ options = trainingOptions( ...
     'InitialLearnRate', configData.InitialLearnRate, ... % Factor de aprendizaje.
     'ValidationData', aumentedImageDataStoreForValidation, ... % Set de imágenes para realizar la validación.
     'ValidationFrequency', configData.ValidationFrequency, ... % Indica cada cuantas iteraciones se realiza el proceso de validación.
-    'ValidationPatience', configData.ValidationPatience, ... % Cuando ya lleva cierto numero de ciclos de etrenamiento para si no hay mejora, en este caso no para.
+    'ValidationPatience', configData.ValidationPatience, ... % Cuando ya lleva cierto numero de ciclos de etrenamiento para si no hay mejora el entrenamiento se detiene.
     'Shuffle', 'every-epoch', ... % Baraja las imagenes de entrenamiento al comenzar cada Epoch y las de validación antes de comenzar cada test.
+    'LearnRateSchedule', 'piecewise', ... % Activa el planificador del de aprendizaje.
+    'LearnRateDropFactor', configData.LearnRateDropFactor, ... % Número a multiplicar por el factor de aprendizaje para modificarlo en el tiempo.
+    'LearnRateDropPeriod', configData.LearnRateDropPeriod, ... % Número de ciclos de entrenamiento que han de pasar hasta volver modificar el factor de aprendizaje.
     'Verbose', false, ... % No se muestra el progreso del entrenamiento por la consola de comandos.
     'Plots', 'training-progress' ... % El proceso del entrenamiento se representa con una gráfica de puntos.
 );
 
 % Lanza el entrenamiento de AlexNet, requiere el uso de la GPU, en el peor caso se usará la CPU.
-netTransfer = trainNetwork(aumentedImageDataStoreForTraining, networkLayers, options);
+alexNet = trainNetwork(aumentedImageDataStoreForTraining, networkLayers, options);
 
 %% Análisis de la red neuronal.
 
@@ -144,12 +146,12 @@ Algunas ayudas que proporciona esta herramienta:
     + Comprobar que todas las capas estén bien conectadas.
     + Averiguar si la capa de entrada tiene el tamaño correcto.
 %}
-analyzeNetwork(netTransfer);
+analyzeNetwork(alexNet);
 
 %% Matriz de confusión.
 
 % Clase que ha asignado AlexNet a cada imagen del set de vehículos.
-predictedLabels = classify(netTransfer, vehicleImageDataStore);
+predictedLabels = classify(alexNet, vehicleImageDataStore);
     
 % Precisión en tanto por ciento de las clasificaciones realizadas.
 accuracy = nnz(vehicleImageDataStore.Labels == predictedLabels) / numel(vehicleImageDataStore.Labels);
@@ -157,7 +159,7 @@ accuracy = accuracy * 100;
 accuracy = round(accuracy, 2);
 accuracy = num2str(accuracy);
 accuracy = strcat(" ", accuracy, " ");
-    
+
 % Ventana que va a mostrar la matriz de confusión.
 figure( ...
     'NumberTitle', 'off', ... % Desactiva que se vea el número de ventana.
@@ -176,7 +178,7 @@ confusionchart( ...
     'DiagonalColor', 'blue', ... % Colores de los aciertos.
     'OffDiagonalColor', 'red', ... % Colores de los fallos.
     'FontColor', 'black', ... % Color de la fuente.
-    'FontSize', 10, ... % Tamaño de la fuente.
+    'FontSize', 8, ... % Tamaño de la fuente.
     'RowSummary', 'row-normalized', ...% Porcentaje de acierto y error al asignar la clase a la que pertenece la imagen.
     'ColumnSummary', 'column-normalized' ... % Porcentaje de acierto y error al predecir una clase para una imagen.
 );
@@ -190,6 +192,6 @@ set(gcf, 'Toolbar', 'none', 'Menu', 'none');
 
 %% Guardamos la nueva AlexNet reentrenada en un fichero.
 % Guarda en el fichero netTransfer el contenido de la variable netTransfer.
-save netTransfer netTransfer
+save alexNet alexNet
 
 end
