@@ -30,6 +30,10 @@ classdef DispatcherImp
                     obj.GUI_QUERIES.update(context);
                 case Events.GUI_RETRAINING
                     obj.GUI_RETRAINING.update(context);
+                case Events.EXECUTE_RETRAINING_KO
+                    obj.GUI_RETRAINING.update(context);
+                case Events.EXECUTE_RETRAINING_OK
+                    obj.GUI_RETRAINING.update(context);
                 case Events.GUI_FORECAST
                     obj.GUI_FORECAST.update(context);
             end            

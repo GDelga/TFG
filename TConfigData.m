@@ -8,10 +8,13 @@ classdef TConfigData
        InitialLearnRate
        ValidationFrequency
        ValidationPatience
+       LearnRateDropFactor
+       LearnRateDropPeriod
    end
    methods        
         function obj = TConfigData(WeightLearnRateFactor, BiasLearnRateFactor, SolverMethod,...
-                MiniBatchSize, MaxEpochs, InitialLearnRate, ValidationFrequency,ValidationPatience)
+                MiniBatchSize, MaxEpochs, InitialLearnRate, ValidationFrequency,ValidationPatience,...
+                LearnRateDropFactor, LearnRateDropPeriod)
            obj.WeightLearnRateFactor = WeightLearnRateFactor;
            obj.BiasLearnRateFactor = BiasLearnRateFactor;
            obj.SolverMethod = SolverMethod;
@@ -20,6 +23,8 @@ classdef TConfigData
            obj.InitialLearnRate = InitialLearnRate;
            obj.ValidationFrequency = ValidationFrequency;
            obj.ValidationPatience = ValidationPatience;
+           obj.LearnRateDropFactor = LearnRateDropFactor;
+           obj.LearnRateDropPeriod = LearnRateDropPeriod;
         end
         function r = getWeightLearnRateFactor(obj)
             r = obj.WeightLearnRateFactor;
@@ -44,6 +49,12 @@ classdef TConfigData
         end
         function r = getValidationPatience(obj)
             r = obj.ValidationPatience;
+        end
+        function r = getLearnRateDropFactor(obj)
+            r = obj.LearnRateDropFactor;
+        end
+        function r = getLearnRateDropPeriod(obj)
+            r = obj.LearnRateDropPeriod;
         end
    end
 end
