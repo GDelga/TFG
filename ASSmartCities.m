@@ -412,7 +412,7 @@ classdef ASSmartCities
                                 category = ' Back Motorbike';
                        end
                        
-                       text = [char(join(string(scores))), char(className)];
+                       text = { char(join(string(scores))) , char(className) };
                        % Pintamos el recuadro que envuelve el vehículo.
                        tCarDetectionData = TCarDetectionData(XSupIzda, XSupDcha, XInfIzda, XInfDcha,...
                                 YSupIzda, YSupDcha, YInfIzda, YInfDcha, category, color);
