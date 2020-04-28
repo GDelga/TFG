@@ -1,7 +1,7 @@
 classdef ASSmartCities
     methods
         function r = retraining(obj, tConfigData)
-             
+            
             %% Carga y división de los set de imágenes.   
             try
                 % Almacén de imágenes, toma la estructura de las carpetas y subcarpetas.
@@ -203,8 +203,238 @@ classdef ASSmartCities
             r = NaN;
         end
         
-        function r = createASThingSpeak(obj)
-             r = ASThingSpeak();
+        function r = detection(obj, tCarDetection)           
+            %% Carga de alexNet e inicialización del lector de vídeo
+            stopFunction = tCarDetection.getIsStop();
+            try
+                % Carga alexNet de su fichero en una variable del workspace. 
+                load alexNet alexNet;
+            catch
+                % Se producirá un error si no se encuentra el fichero alexNet.
+                r = "Can't load the alexNet file\n Please retrain the net";
+                return;
+            end
+
+            % Dimensiones de las imágenes de entrada de alexNet (227 x 227 x 3).
+            AlexNetInputSize = alexNet.Layers(1).InputSize;
+
+            % Concatenamos la ruta al fichero y el nombre del fichero.
+            videoFile = strcat(tCarDetection.getDirectory(), tCarDetection.getVideoName());
+
+            % Objeto para la lectura de los frame de vídeo.
+            vidReader = VideoReader(videoFile);
+
+            %{
+            Un objeto de flujo óptico permite estimar la direccion, el sentido y la 
+            orientación de los objetos en movimiento, en este caso, mediante el uso
+            del método de Farneback. Este trabaja con imagenes con una capa (imagenes
+            en escala de grises). Acto seguido reseteamos su estado.
+            %}
+            opticalFlowMethod = opticalFlowFarneback;  
+            reset(opticalFlowMethod);
+
+            try 
+                % Leemos el primer frame de video.
+                frameRGB = readFrame(vidReader);
+                Controler.getInstance().execute(Context(Events.CAR_DETECTION_VIDEO_LOADED, 'Loading video'));
+            catch
+                % Se producirá un error si no se puede cargar el vídeo.
+                r = "Can't load the video";
+                return;
+            end
+
+            % Alto, ancho y número de capas que componen una imagen en color.
+            [HeightOfFrame , WidthOfFrame , ~] = size(frameRGB);
+
+            % Variables para el conteo del tráfico.
+            numBackCar = 0;
+            numFrontCar = 0;
+            numBackBus = 0;
+            numFrontBus = 0;
+            numBackMoto = 0;
+            numFrontMoto = 0;
+            numBackTrack = 0;
+            numFrontTrack = 0;
+
+            % Reproduce todo el video, desde el frame 2 hasta el n-ésimo.
+            while hasFrame(vidReader)  
+              % Si el usuario decide parar el video.
+              stop = stopFunction();
+              if stop == 1
+                  r = 1;
+                  return;
+              end
+
+              % Obtiene el frame de video actual.
+              frameRGB = readFrame(vidReader);
+
+              % Muestra la imagen en el panel lateral.
+              tVideoData = TVideoData(frameRGB, NaN, NaN, NaN);
+              Controler.getInstance().execute(Context(Events.UPDATE_CAR_DETECTION_VIDEO_DATA, tVideoData)); 
+
+              %% Visión por Computador
+
+              % Cálculo del flujo optico: Magnitud, dirección y sentido vectorial.
+              opticalFlow = estimateFlow(opticalFlowMethod,rgb2gray(frameRGB));
+
+              %{
+              Matriz donde valor es el módulo del vector a partir de ese punto, es 
+              decir, la cantidad de movimiento que se ha producido en ese punto.
+              %}
+              magnitudeFlow = mat2gray(opticalFlow.Magnitude);
+
+              % Media de la cantidad de movimiento.
+              magnitudeFlowMean = mean2(magnitudeFlow);
+
+              % Desviación estándar del movimiento.
+              magnitudeFlowStandarDesviation = std2(magnitudeFlow);
+
+              % Umbral para filtrar el movimiento que se ha producido en la imagen.
+              level = magnitudeFlowMean + magnitudeFlowStandarDesviation;
+
+              %{
+              BinaryFlow: Imagen binaria en la cual un pixel es negro si no pasa el
+              umbral level y blanco en caso contrario. Estos píxeles blancos son
+              aquellos en los que ha habido un nivel de movimiento notable.
+              %}
+              binaryFlow = magnitudeFlow > level;
+
+              % Total de regiones con movimiento que se han detectado.
+              [~ , numberOfDetectedRegions] = bwlabel(binaryFlow);
+
+              % Calcula las propiedades: Centroide, coordenadas y área de las regiones.
+              RegionProperties = regionprops(binaryFlow);
+
+              %% Conteo del tráfico y visualización de la información
+
+              % Nos recorremos todas las etiquetas
+              for region = 1:1:numberOfDetectedRegions
+
+                  % Si el usuario decide parar el video.
+                  stop = stopFunction();
+                  if stop == 1
+                     r = 1;
+                     return;
+                  end
+
+                  % Si la región es la de un posible vehiculo.
+                  if RegionProperties(region).Area >= 200
+
+                    % Obtenemos la coordenada X superior izquierda.
+                    XSupIzda =  round(RegionProperties(region).BoundingBox(1));
+                    if XSupIzda <= 0; XSupIzda = 1; end
+                    % Obtenemos la coordenada Y superior izquierda.
+                    YSupIzda =  round(RegionProperties(region).BoundingBox(2));  
+                    if YSupIzda <= 0; YSupIzda = 1; end
+                    % Obtenemos la coordenada X superior derecha.
+                    XSupDcha =  round(XSupIzda + RegionProperties(region).BoundingBox(3));
+                    if XSupDcha > WidthOfFrame; XSupDcha = WidthOfFrame; end
+                    % Obtenemos la coordenada Y superior derecha.
+                    YSupDcha =  YSupIzda;
+                    % Obtenemos la coordenada X inferior izquierda.
+                    XInfIzda =  XSupIzda;
+                    % Obtenemos la coordena Y inferior izquierda.
+                    YInfIzda =  round(YSupIzda + RegionProperties(region).BoundingBox(4));
+                    if YInfIzda > HeightOfFrame; YInfIzda = HeightOfFrame; end
+                    % Obtenemos la coordenada X inferior derecha.
+                    XInfDcha =  XSupDcha;
+                    % Obtenemos la coordenada Y inferior derecha.
+                    YInfDcha =  YInfIzda;
+
+                    % Extraemos la imagen detectada en el frame actual.
+                    extractedImage = frameRGB(YSupIzda:1:YInfIzda,XSupIzda:1:XSupDcha,:);
+
+                    % Redimensionamos la imagen y la mostramos en el panel lateral.
+                    resizedImage = imresize(extractedImage, AlexNetInputSize(1:2), 'bilinear');
+                    tVideoData = TVideoData(NaN, resizedImage, NaN, NaN);
+                    Controler.getInstance().execute(Context(Events.UPDATE_CAR_DETECTION_VIDEO_DATA, tVideoData));
+
+                    % Clase con mayor puntuación y puntuaciones para cada clase.
+                    [className , scores] = classify(alexNet,resizedImage);
+
+                    % Valor máximo del array, máximo grado de pertenencia.
+                    maxScore = max(scores);
+
+                    % Contabilización de vehículos.
+                    if (className ~= 'Asphalt') && (className ~= 'Wall') && (maxScore >= 0.50)... 
+                    && RegionProperties(region).Centroid(2) > 592 && RegionProperties(region).Centroid(2) < 603
+
+                       switch className
+                            case 'FrontBus'
+                              numFrontBus = numFrontBus + 1;
+                            case 'BackBus'
+                              numBackBus = numBackBus + 1;
+                            case 'FrontTruckVan'
+                              numFrontTrack = numFrontTrack + 1;
+                            case 'BackTruckVan'
+                              numBackTrack = numBackTrack + 1;
+                            case 'FrontCar'
+                              numFrontCar = numFrontCar + 1;
+                            case 'BackCar'
+                              numBackCar = numBackCar + 1 ;
+                            case 'FrontMotorbike'
+                              numFrontMoto = numFrontMoto + 1;
+                            case 'BackMotorbike'
+                              numBackMoto = numBackMoto + 1;
+                       end
+
+                    end
+
+                    % Clasificamos la imagen si esta es la de un vehículo.
+                    if (className ~= 'Asphalt') && (className ~= 'Wall') && (maxScore >= 0.50) ... 
+                    && RegionProperties(region).Centroid(2) > 500 && RegionProperties(region).Centroid(2) < 1000 
+
+                       % Color y nombre asociado a la clase de cada vehículo.
+                       switch className
+                            case 'FrontBus'
+                                color = 'yellow'; 
+                                category = ' Front Bus';
+                            case 'BackBus'
+                                color = 'yellow'; 
+                                category = ' Back Bus';
+                            case 'FrontTruckVan'
+                                color = 'white'; 
+                                category = ' Front TruckVan';
+                            case 'BackTruckVan'
+                                color = 'white'; 
+                                category = ' Back TruckVan';
+                            case 'FrontCar'
+                                color = 'blue';
+                                category = ' Front Car';
+                            case 'BackCar'
+                                color = 'blue';
+                                category = ' Back Car';
+                            case 'FrontMotorbike'
+                                color = 'green';
+                                category = ' Front Motorbike';
+                            case 'BackMotorbike'
+                                color = 'green';
+                                category = ' Back Motorbike';
+                       end
+                       
+                       text = [char(join(string(scores))), char(className)];
+                       % Pintamos el recuadro que envuelve el vehículo.
+                       tCarDetectionData = TCarDetectionData(XSupIzda, XSupDcha, XInfIzda, XInfDcha,...
+                                YSupIzda, YSupDcha, YInfIzda, YInfDcha, category, color);
+                       tVideoData = TVideoData(NaN, NaN, text, tCarDetectionData);
+                       Controler.getInstance().execute(Context(Events.UPDATE_CAR_DETECTION_VIDEO_DATA, tVideoData));
+                    end % Fin del IF en el que se muestra información por pantalla.
+
+                  end % Fin del IF en el que se comprueba el área de la región capturada.
+
+              end % Fin del bucle FOR en el que se procesa cada región con movimiento.
+
+            end % Fin del bucle WHILE, se ejecutará mientras haya que leer frames.
+
+            %% Servidor ThingSpeak
+
+            % Subimos a ThingSpeak la información de los contadores.
+            channelIDParking = 986255;
+            writeAPIKeyParking = 'OSC85NR2M22OOXQG';
+            dataField = [numFrontCar,numBackCar,numFrontTrack,numBackTrack,numFrontMoto,numBackMoto,numFrontBus,numBackBus];
+            %thingSpeakWrite(channelIDParking, dataField, 'Writekey', writeAPIKeyParking);
+
+            r = NaN;
         end
     end
 end
