@@ -6,6 +6,12 @@ classdef CommandFactoryImp
                     r = CommandRetraining();
                 case Events.EXECUTE_CAR_DETECTION
                     r = CommandCarDetection();
+                case Events.EXECUTE_FORECAST_WRITE
+                    r = CommandForecastWrite();
+                case Events.EXECUTE_FORECAST_READ
+                    r = CommandForecastRead();
+                case Events.EXECUTE_QUERIES
+                    r = CommandQuery();
                 otherwise
                     r = NaN;
             end     

@@ -1,11 +1,13 @@
 classdef ASFactoryImp
     methods
+        
         function r = createASSmartCities(obj)
-             r = ASSmartCities();
+            r = ASSmartCities();
         end
         
         function r = createASThingSpeak(obj)
-             r = ASThingSpeak();
+            r = ASThingSpeak();
         end
+        
     end
 end

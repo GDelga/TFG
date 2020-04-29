@@ -1,12 +1,12 @@
 classdef DispatcherImp
     properties (Access = private)
-      GUI_MAIN
-      GUI_LEARNING
-      GUI_CAR_DETECTION
-      GUI_THING_SPEAK
-      GUI_QUERIES
-      GUI_RETRAINING
-      GUI_FORECAST
+        GUI_MAIN
+        GUI_LEARNING
+        GUI_CAR_DETECTION
+        GUI_THING_SPEAK
+        GUI_QUERIES
+        GUI_RETRAINING
+        GUI_FORECAST
     end
     methods
         
@@ -72,6 +72,11 @@ classdef DispatcherImp
                         obj.GUI_QUERIES = Queries();
                     end
                     obj.GUI_QUERIES.update(context);
+                case Events.EXECUTE_QUERIES
+                    if(ismethod(obj.GUI_QUERIES,'isnan'))
+                        obj.GUI_QUERIES = Queries();
+                    end
+                    obj.GUI_QUERIES.update(context);
                 case Events.GUI_RETRAINING
                     if(ismethod(obj.GUI_RETRAINING,'isnan'))
                         obj.GUI_RETRAINING = Retraining();
@@ -92,7 +97,17 @@ classdef DispatcherImp
                         obj.GUI_FORECAST = Forecast();
                     end
                     obj.GUI_FORECAST.update(context);
-            end            
+                case Events.EXECUTE_FORECAST_READ
+                    if(ismethod(obj.GUI_FORECAST,'isnan'))
+                        obj.GUI_FORECAST = Forecast();
+                    end
+                    obj.GUI_FORECAST.update(context);
+                case Events.EXECUTE_FORECAST_WRITE
+                    if(ismethod(obj.GUI_FORECAST,'isnan'))
+                        obj.GUI_FORECAST = Forecast();
+                    end
+                    obj.GUI_FORECAST.update(context);
+            end
         end
     end
 end

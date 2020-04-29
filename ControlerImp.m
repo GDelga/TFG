@@ -1,5 +1,7 @@
 classdef ControlerImp
+    
     methods
+        
         function execute(obj, context)
             command = CommandFactory.getInstance().generateCommand(context.getEvent());
             if (~ismethod(command,'isnan'))
@@ -8,5 +10,7 @@ classdef ControlerImp
             else Dispatcher.getInstance().generateView(context);
             end
         end
+        
     end
+    
 end
