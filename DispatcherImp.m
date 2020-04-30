@@ -47,6 +47,9 @@ classdef DispatcherImp
                 case Events.CAR_DETECTION_VIDEO_LOADED
                     obj.GUI_CAR_DETECTION.update(context);
                 case Events.GUI_THING_SPEAK
+                    if(ismethod(obj.GUI_RETRAINING,'isnan'))
+                        obj.GUI_THING_SPEAK = ThingSpeak();
+                    end
                     obj.GUI_THING_SPEAK.update(context);
                 case Events.GUI_QUERIES
                     obj.GUI_QUERIES.update(context);
