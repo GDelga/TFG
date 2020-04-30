@@ -1,23 +1,25 @@
 classdef DispatcherImp
+    
+    properties (Constant)
+        GUI_CAR_DETECTION = CarDetection();
+        GUI_QUERIES = Queries();
+        GUI_FORECAST = Forecast();
+    end
+    
     properties (Access = private)
         GUI_MAIN
         GUI_LEARNING
-        GUI_CAR_DETECTION
         GUI_THING_SPEAK
-        GUI_QUERIES
         GUI_RETRAINING
-        GUI_FORECAST
     end
+    
     methods
         
         function obj = DispatcherImp(obj)
             obj.GUI_MAIN = NaN;
             obj.GUI_LEARNING = NaN;
-            obj.GUI_CAR_DETECTION = NaN;
             obj.GUI_THING_SPEAK = NaN;
-            obj.GUI_QUERIES = NaN;
             obj.GUI_RETRAINING = NaN;
-            obj.GUI_FORECAST = NaN;
         end
         function generateView(obj, context)
             event = getEvent(context);
@@ -33,50 +35,23 @@ classdef DispatcherImp
                     end
                     obj.GUI_LEARNING.update(context);
                 case Events.GUI_CAR_DETECTION
-                    if(ismethod(obj.GUI_CAR_DETECTION,'isnan'))
-                        obj.GUI_CAR_DETECTION = CarDetection();
-                    end
                     obj.GUI_CAR_DETECTION.update(context);
                 case Events.EXECUTE_CAR_DETECTION_OK
-                    if(ismethod(obj.GUI_CAR_DETECTION,'isnan'))
-                        obj.GUI_CAR_DETECTION = CarDetection();
-                    end
                     obj.GUI_CAR_DETECTION.update(context);
                 case Events.EXECUTE_CAR_DETECTION_KO
-                    if(ismethod(obj.GUI_CAR_DETECTION,'isnan'))
-                        obj.GUI_CAR_DETECTION = CarDetection();
-                    end
                     obj.GUI_CAR_DETECTION.update(context);
                 case Events.UPDATE_CAR_DETECTION_VIDEO_DATA
-                    if(ismethod(obj.GUI_CAR_DETECTION,'isnan'))
-                        obj.GUI_CAR_DETECTION = CarDetection();
-                    end
                     obj.GUI_CAR_DETECTION.update(context);
                 case Events.EXECUTE_CAR_DETECTION_STOP
-                    if(ismethod(obj.GUI_CAR_DETECTION,'isnan'))
-                        obj.GUI_CAR_DETECTION = CarDetection();
-                    end
                     obj.GUI_CAR_DETECTION.update(context);
                 case Events.CAR_DETECTION_VIDEO_LOADED
-                    if(ismethod(obj.GUI_CAR_DETECTION,'isnan'))
-                        obj.GUI_CAR_DETECTION = CarDetection();
-                    end
                     obj.GUI_CAR_DETECTION.update(context);
                 case Events.GUI_THING_SPEAK
-                    if(ismethod(obj.GUI_THING_SPEAK,'isnan'))
-                        obj.GUI_THING_SPEAK = ThingSpeak();
-                    end
                     obj.GUI_THING_SPEAK.update(context);
                 case Events.GUI_QUERIES
-                    if(ismethod(obj.GUI_QUERIES,'isnan'))
-                        obj.GUI_QUERIES = Queries();
-                    end
                     obj.GUI_QUERIES.update(context);
                 case Events.EXECUTE_QUERIES
-                    if(ismethod(obj.GUI_QUERIES,'isnan'))
-                        obj.GUI_QUERIES = Queries();
-                    end
-                    obj.GUI_QUERIES.update(context);
+                     obj.GUI_QUERIES.update(context);
                 case Events.GUI_RETRAINING
                     if(ismethod(obj.GUI_RETRAINING,'isnan'))
                         obj.GUI_RETRAINING = Retraining();
@@ -93,19 +68,10 @@ classdef DispatcherImp
                     end
                     obj.GUI_RETRAINING.update(context);
                 case Events.GUI_FORECAST
-                    if(ismethod(obj.GUI_FORECAST,'isnan'))
-                        obj.GUI_FORECAST = Forecast();
-                    end
                     obj.GUI_FORECAST.update(context);
                 case Events.EXECUTE_FORECAST_READ
-                    if(ismethod(obj.GUI_FORECAST,'isnan'))
-                        obj.GUI_FORECAST = Forecast();
-                    end
                     obj.GUI_FORECAST.update(context);
                 case Events.EXECUTE_FORECAST_WRITE
-                    if(ismethod(obj.GUI_FORECAST,'isnan'))
-                        obj.GUI_FORECAST = Forecast();
-                    end
                     obj.GUI_FORECAST.update(context);
             end
         end
