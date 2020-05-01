@@ -7,7 +7,7 @@ classdef ASSmartCities
             %% Carga y división de los set de imágenes.
             try
                 % Almacén de imágenes, toma la estructura de las carpetas y subcarpetas.
-                vehicleImageDataStore = imageDatastore('ImageCategories','IncludeSubfolders', true,'LabelSource','foldernames');
+                vehicleImageDataStore = imageDatastore(fullfile('src','ImageCategories'),'IncludeSubfolders', true,'LabelSource','foldernames');
             catch
                 % Se producirá un error si no se encuentra el fichero alexNet.
                 r = "ImageCategories direcctory not exists";
@@ -201,7 +201,7 @@ classdef ASSmartCities
                             
                             %% Guardamos la nueva AlexNet reentrenada en un fichero.
                             % Guarda en el fichero netTransfer el contenido de la variable netTransfer.
-                            save alexNet alexNet
+                            save(fullfile('src','Others','alexNet'), 'alexNet');
                             r = NaN;
         end
         
@@ -213,10 +213,10 @@ classdef ASSmartCities
             stopFunction = tCarDetection.getIsStop();
             try
                 % Carga alexNet de su fichero en una variable del workspace.
-                load alexNet alexNet;
+                load(fullfile('src','Others','alexNet'), 'alexNet');
             catch
                 % Se producirá un error si no se encuentra el fichero alexNet.
-                r = "Can't load the alexNet file\n Please retrain the net";
+                r = "Can't load the alexNet file. Please retrain the net";
                 return;
             end
             

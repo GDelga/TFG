@@ -1,7 +1,6 @@
 classdef CommandFactoryImp
     methods
         function r = generateCommand(obj, event)
-            import src.Command.*
             import src.Context.*
             switch event
                 case Events.EXECUTE_RETRAINING

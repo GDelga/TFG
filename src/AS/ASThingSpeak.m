@@ -3,6 +3,7 @@ classdef ASThingSpeak
     methods
         
         function r = write(obj, tThingSpeak)
+            import src.Transfer.*
             data = tThingSpeak.getData();
             channelID = tThingSpeak.getChannelID();
             labels = tThingSpeak.getLabels();
@@ -11,6 +12,7 @@ classdef ASThingSpeak
         end
         
         function r = read(obj, tThingSpeak)
+            import src.Transfer.*
             channelID = tThingSpeak.getChannelID();
             labels = tThingSpeak.getLabels();
             APIKey = tThingSpeak.getAPIKey();
@@ -19,6 +21,7 @@ classdef ASThingSpeak
         end
         
         function r = readWithNumber(obj, tThingSpeak)
+            import src.Transfer.*
             number = tThingSpeak.getNumber();
             channelID = tThingSpeak.getChannelID();
             labels = tThingSpeak.getLabels();
@@ -28,6 +31,7 @@ classdef ASThingSpeak
         end
         
         function r = readWithRange(obj, tThingSpeak)
+            import src.Transfer.*
             t1 = tThingSpeak.getRange1();
             t2 = tThingSpeak.getRange2();
             channelID = tThingSpeak.getChannelID();
@@ -38,6 +42,7 @@ classdef ASThingSpeak
         end
         
         function r = readByDate(obj, tThingSpeak)
+            import src.Transfer.*
             initDate = tThingSpeak.getRange1();
             endDate = tThingSpeak.getRange2();
             channelID = tThingSpeak.getChannelID();
