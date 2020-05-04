@@ -6,7 +6,11 @@ classdef CommandQuery
             import src.AS.*
             import src.Context.*
             result = ASFactory.getInstance().createASThingSpeak().readByDate(data);
-            r = Context(Events.EXECUTE_QUERIES, result);
+            if(~ismethod(result, 'isstring'))
+                r = Context(Events.EXECUTE_QUERIES_OK, result);
+            else
+                r = Context(Events.EXECUTE_QUERIES_KO, result);
+            end
         end
         
     end

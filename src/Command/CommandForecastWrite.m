@@ -6,7 +6,11 @@ classdef CommandForecastWrite
             import src.AS.*
             import src.Context.*
             result = ASFactory.getInstance().createASThingSpeak().write(data);
-            r = Context(Events.EXECUTE_FORECAST_WRITE, data.getData());
+            if(~ismethod(result, 'isstring'))
+                r = Context(Events.EXECUTE_FORECAST_WRITE_OK, data.getData());
+            else
+                r = Context(Events.EXECUTE_FORECAST_WRITE_KO, result);
+            end
         end
         
     end
