@@ -8,7 +8,12 @@ classdef ASThingSpeak
             channelID = tThingSpeak.getChannelID();
             labels = tThingSpeak.getLabels();
             APIKey = tThingSpeak.getAPIKey();
-            r = thingSpeakWrite(channelID, data, 'Fields', labels, 'Writekey', APIKey);
+            try
+                thingSpeakWrite(channelID, data, 'Fields', labels, 'Writekey', APIKey);
+                r = NaN;
+            catch
+                r = "The operation could not be performed. Try again.";
+            end
         end
         
         function r = read(obj, tThingSpeak)
@@ -16,8 +21,12 @@ classdef ASThingSpeak
             channelID = tThingSpeak.getChannelID();
             labels = tThingSpeak.getLabels();
             APIKey = tThingSpeak.getAPIKey();
-            [data,timestamps,channelInfo] = thingSpeakRead(channelID, 'Fields', labels, 'Readkey', APIKey);
-            r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            try
+                [data,timestamps,channelInfo] = thingSpeakRead(channelID, 'Fields', labels, 'Readkey', APIKey);
+                r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            catch
+                r = "The operation could not be performed. Try again.";
+            end
         end
         
         function r = readWithNumber(obj, tThingSpeak)
@@ -26,8 +35,12 @@ classdef ASThingSpeak
             channelID = tThingSpeak.getChannelID();
             labels = tThingSpeak.getLabels();
             APIKey = tThingSpeak.getAPIKey();
-            [data,timestamps,channelInfo] = thingSpeakRead(channelID, 'Fields', labels, 'NumPoints', number, 'Readkey', APIKey);
-            r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            try
+                [data,timestamps,channelInfo] = thingSpeakRead(channelID, 'Fields', labels, 'NumPoints', number, 'Readkey', APIKey);
+                r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            catch
+                r = "The operation could not be performed. Try again.";
+            end
         end
         
         function r = readWithRange(obj, tThingSpeak)
@@ -37,8 +50,12 @@ classdef ASThingSpeak
             channelID = tThingSpeak.getChannelID();
             labels = tThingSpeak.getLabels();
             APIKey = tThingSpeak.getAPIKey();
-            [data,timestamps,channelInfo] = thingSpeakRead(channelID, 'Fields', labels, 'DateRange',[t1,t2], 'Readkey', APIKey);
-            r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            try
+                [data,timestamps,channelInfo] = thingSpeakRead(channelID, 'Fields', labels, 'DateRange',[t1,t2], 'Readkey', APIKey);
+                r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            catch
+                r = "The operation could not be performed. Try again.";
+            end
         end
         
         function r = readByDate(obj, tThingSpeak)
@@ -53,11 +70,15 @@ classdef ASThingSpeak
             secondDate = split(string(endDate), "-");
             
             % Realizo la consulta leyendo los datos de los campos deseados
-            [data,timestamps,channelInfo] = thingSpeakRead(channelID,'Fields',labels,'DateRange',...
-                [datetime(str2num(firstDate(1)),str2num(firstDate(2)),str2num(firstDate(3)),23,59,01),...
-                datetime(str2num(secondDate(1)),str2num(secondDate(2)),str2num(secondDate(3)),23,59,01)], ...
-                'Readkey', APIKey);
-            r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            try
+                [data,timestamps,channelInfo] = thingSpeakRead(channelID,'Fields',labels,'DateRange',...
+                    [datetime(str2num(firstDate(1)),str2num(firstDate(2)),str2num(firstDate(3)),23,59,01),...
+                    datetime(str2num(secondDate(1)),str2num(secondDate(2)),str2num(secondDate(3)),23,59,01)], ...
+                    'Readkey', APIKey);
+                r = TThingSpeakResult(labels, data, timestamps, channelInfo);
+            catch
+                r = "The operation could not be performed. Try again.";
+            end
         end
         
     end
