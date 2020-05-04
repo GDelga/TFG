@@ -54,7 +54,9 @@ classdef DispatcherImp
                     obj.GUI_THING_SPEAK.update(context);
                 case Events.GUI_QUERIES
                     obj.GUI_QUERIES.update(context);
-                case Events.EXECUTE_QUERIES
+                case Events.EXECUTE_QUERIES_OK
+                     obj.GUI_QUERIES.update(context);
+                case Events.EXECUTE_QUERIES_KO
                      obj.GUI_QUERIES.update(context);
                 case Events.GUI_RETRAINING
                     if(ismethod(obj.GUI_RETRAINING,'isnan'))
@@ -73,9 +75,13 @@ classdef DispatcherImp
                     obj.GUI_RETRAINING.update(context);
                 case Events.GUI_FORECAST
                     obj.GUI_FORECAST.update(context);
-                case Events.EXECUTE_FORECAST_READ
+                case Events.EXECUTE_FORECAST_READ_OK
                     obj.GUI_FORECAST.update(context);
-                case Events.EXECUTE_FORECAST_WRITE
+                case Events.EXECUTE_FORECAST_READ_KO
+                    obj.GUI_FORECAST.update(context);
+                case Events.EXECUTE_FORECAST_WRITE_OK
+                    obj.GUI_FORECAST.update(context);
+                case Events.EXECUTE_FORECAST_WRITE_KO
                     obj.GUI_FORECAST.update(context);
             end
         end
