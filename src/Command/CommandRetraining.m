@@ -6,7 +6,7 @@ classdef CommandRetraining
             import src.AS.*
             import src.Context.*
             result = ASFactory.getInstance().createASSmartCities().retraining(data);
-            if(~ismethod(result,'isnan'))
+            if(ismethod(result,'isnan'))
                 r = Context(Events.EXECUTE_RETRAINING_OK, result);
             else
                 r = Context(Events.EXECUTE_RETRAINING_KO, result);
