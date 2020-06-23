@@ -1,2 +1,2 @@
 # TFG
-Repositorio para interfaces del TFG
+Repositorio del TFG
