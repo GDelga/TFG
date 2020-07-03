@@ -387,7 +387,7 @@ classdef ASSmartCities
                         
                         % Clasificamos la imagen si esta es la de un vehículo.
                         if (className ~= 'Asphalt') && (className ~= 'Wall') && (maxScore >= 0.50) ...
-                                && RegionProperties(region).Centroid(2) > 500 && RegionProperties(region).Centroid(2) < 1000
+                                && RegionProperties(region).Centroid(2) > 592  && RegionProperties(region).Centroid(2) < 603
                             
                             % Color y nombre asociado a la clase de cada vehículo.
                             switch className
